@@ -15,7 +15,7 @@ class GameBody extends StatefulWidget {
 
 class _GameBodyState extends State<GameBody> {
   late bool isDone;
-  late InputType? _userInput;
+  InputType? _userInput;
   late InputType _cpuInput;
 
   @override
@@ -32,8 +32,18 @@ class _GameBodyState extends State<GameBody> {
     return Column(
       children: [
         Expanded(child: CpuInput(isDone: isDone, cpuInput: _cpuInput)),
-        Expanded(child: GameResult(isDone: isDone)),
-        Expanded(child: UserInput(isDone: isDone, callback: setUsetInput)),
+        Expanded(
+            child: GameResult(
+          isDone: isDone,
+          result: getResult(),
+          callback: reset,
+        )),
+        Expanded(
+            child: UserInput(
+          isDone: isDone,
+          callback: setUsetInput,
+          userInput: _userInput,
+        )),
       ],
     );
   }
@@ -48,5 +58,48 @@ class _GameBodyState extends State<GameBody> {
   void setCpuInput() {
     final random = Random();
     _cpuInput = InputType.values[random.nextInt(3)];
+  }
+
+  void reset() {
+    setState(() {
+      isDone = false;
+      setCpuInput();
+    });
+  }
+
+  Result? getResult() {
+    if (_userInput == null) {
+      return null;
+    }
+    switch (_userInput!) {
+      case InputType.rock:
+        switch (_cpuInput) {
+          case InputType.rock:
+            return Result.draw;
+          case InputType.scissors:
+            return Result.playerWin;
+          case InputType.paper:
+            return Result.cpuWin;
+        }
+      case InputType.scissors:
+        switch (_cpuInput) {
+          case InputType.rock:
+            return Result.cpuWin;
+          case InputType.scissors:
+            return Result.draw;
+          case InputType.paper:
+            return Result.playerWin;
+        }
+      case InputType.paper:
+        switch (_cpuInput) {
+          case InputType.rock:
+            return Result.playerWin;
+          case InputType.scissors:
+            return Result.cpuWin;
+          case InputType.paper:
+            return Result.draw;
+        }
+    }
+    return null;
   }
 }
